@@ -4,20 +4,24 @@ import pandas as pd
 from scipy.io import loadmat
 
 # global variables
-eeg_data_length = 5000
+eeg_data_length = 10000
 segment_length = 50
-segment_number = 300 
+segment_number = 2000 
 
 # load EEG data
 # train_data.mat -> x -> (1, 1200)
 # eeg_data.mat -> EEG_data -> (32, 332416)
+data_set = 2
 print('Loading data...')
-train_data_mat = loadmat('eeg_data.mat')
-# print(train_data_mat.keys())
-# extract a channel of EEG data
-channel = 0
-train_data = train_data_mat['EEG_data'][channel, 200000:200000+eeg_data_length]
-# print(train_data, train_data.shape)
+if data_set == 1:
+	train_data_mat = loadmat('train_data.mat')
+	# print(train_data_mat.keys())
+	train_data = train_data_mat['x'][0, :eeg_data_length]
+	# print(train_data, train_data.shape)
+else:
+	train_data_mat = loadmat('eeg_data.mat')
+	train_data = train_data_mat['EEG_data'].sum(axis=0).reshape(1, 332416)
+	train_data = train_data[0, 20000:20000+eeg_data_length]
 
 def seg_extract(x:'original EEG data', m:'segment number', n:'segment length'):
 	"""
@@ -118,6 +122,15 @@ x = x_estimate(y, dictionary, s, m=segment_number, n=segment_length)
 
 print('Computing clean EEG...')
 v = y - x
+
+# save data
+import scipy.io as scio
+
+scio.savemat('y.mat', {'y':y})
+scio.savemat('v.mat', {'v':v})
+
+np.save('y.npy', y)
+np.save('v.npy', v)
 
 import matplotlib.pyplot as plt 
 
