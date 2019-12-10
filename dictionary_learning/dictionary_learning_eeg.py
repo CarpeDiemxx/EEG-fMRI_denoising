@@ -149,6 +149,9 @@ class dictionary_learning_eeg(object):
 		plt.plot(t, x, color='c')
 		plt.show()
 
+if __name__ == '__main__':
+	main()
+
 # load EEG data
 # train_data.mat -> x -> (1, 1200)
 # eeg_data.mat -> EEG_data -> (32, 332416)
