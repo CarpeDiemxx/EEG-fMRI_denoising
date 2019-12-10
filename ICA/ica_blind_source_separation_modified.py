@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Oct 30 10:06:33 2019
+Created on Wed Oct 30 2019
 
 @author: Bohui Zhang
 """
@@ -12,7 +12,6 @@ from scipy.io import loadmat
 
 from sklearn.decomposition import FastICA, PCA
 
-# #############################################################################
 # load EEG data
 print('Loading data...')
 train_data_mat = loadmat('eeg_data.mat')
@@ -33,9 +32,7 @@ assert np.allclose(X, np.dot(S, A.T) + ica.mean_)
 pca = PCA(n_components=30)
 H = pca.fit_transform(X)  # Reconstruct signals based on orthogonal components
 
-# #############################################################################
 # Plot results
-
 plt.figure(figsize=(20, 10))
 
 models = [X, S, H, A]
