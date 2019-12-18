@@ -68,10 +68,7 @@ def dict_initialize(x_seg:'segmented EEG data', n_components:'dimension of dicti
 		dict_data: initialized dictionary (dict_data.shape = (n, n_components))
 	"""
 	u, sigma, v = np.linalg.svd(x_seg)
-	print('x_seg.shape =', x_seg.shape)
-	print('u.shape =', u.shape) 
 	dict_data = u[:, :n_components]  # dict_data.shape = (50, 50) ! 
-	print('dict_shape =', dict_data.shape)
 	dict_data = u[:, :n_components]
 
 	return dict_data
@@ -138,7 +135,6 @@ for i in range(max_iter):
 
 print('Estimating BCG...')
 x = x_estimate(y, dictionary, s, m=segment_number, n=segment_length)
-
 print('Computing clean EEG...')
 v = y - x
 
@@ -163,11 +159,11 @@ def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
 	"""
 	t = np.linspace(0, 20, eeg_data_length)
 	plt.figure(figsize=(5, 20))
-	# plt.ylim(-1.5, 1.5)
+	plt.ylim(-1.2, 1.5)
 	plt.plot(t, y, color='b')
 
-	#plt.plot(t, v, color='r')
-	plt.plot(t, x, color='r')
+	plt.plot(t, v, color='r')
+	#plt.plot(t, x, color='r')
 	plt.show()
 
 print('Plotting...')
@@ -183,7 +179,7 @@ print(dictionary.shape)
 print('s.shape =', s.shape)
 
 
-#eeg_plot(real_EEG, v, x)
-eeg_plot(y, v, x)
+eeg_plot(real_EEG, v, x)
+#eeg_plot(y, v, x)
 
 
