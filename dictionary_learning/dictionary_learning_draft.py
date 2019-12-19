@@ -110,6 +110,14 @@ def x_estimate(y:'original EEG data', D, s, m, n, const_lambda=0.5):
 		second_term += ((R[i].T).dot(D).dot(s[:, i])).reshape(N, 1)
 	return (first_term * second_term)
 
+def atom_rearrange(D, index_list):
+	"""
+	index_list should be a list
+	"""
+	for i in index_list:
+		D[:, i] = np.zeros((1, D.shape[0]))
+	return D
+
 from sklearn import linear_model
 
 y = train_data.reshape(1, eeg_data_length).T
@@ -134,6 +142,8 @@ for i in range(max_iter):
 	dict_update(x_seg, dictionary, s, n_components=50)
 
 print('Estimating BCG...')
+index_list = range(3, 50, 1)
+atom_rearrange(dictionary, index_list)
 x = x_estimate(y, dictionary, s, m=segment_number, n=segment_length)
 print('Computing clean EEG...')
 v = y - x
@@ -160,10 +170,10 @@ def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
 	t = np.linspace(0, 20, eeg_data_length)
 	plt.figure(figsize=(5, 20))
 	plt.ylim(-1.2, 1.5)
-	plt.plot(t, y, color='b')
-
-	plt.plot(t, v, color='r')
-	#plt.plot(t, x, color='r')
+	plt.plot(t, y, color='b', label='Original EEG')
+	plt.plot(t, v, color='r', label='Cleaned EEG')
+	#plt.plot(t, x, color='g')
+	plt.legend(loc='0')
 	plt.show()
 
 print('Plotting...')
