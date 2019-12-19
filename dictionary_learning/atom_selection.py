@@ -50,28 +50,21 @@ def plot_eeg(data):
 	n_rows = 50
 	y1 = (n_rows - 1) * dr + dmax
 	ax2.set_ylim(y0, y1)
-
 	segs = []
 	for i in range(n_rows):
 	    segs.append(np.column_stack((t, data[:, i])))
 	    ticklocs.append(i * dr)
-
 	offsets = np.zeros((n_rows, 2), dtype=float)
 	offsets[:, 1] = ticklocs
-
 	lines = LineCollection(segs, offsets=offsets, transOffset=None)
 	ax2.add_collection(lines)
-
 	# Set the yticks to use axes coordinates on the y axis
 	ax2.set_yticks(ticklocs)
 	y_list = []
 	for i in range(1, 51):
 		y_list.append('%d' % i)
 	ax2.set_yticklabels(y_list)
-
 	ax2.set_xlabel('Time (s)')
-
-
 	plt.tight_layout()
 	plt.show()
 
@@ -102,14 +95,24 @@ def atom_clustering_1(D):
 	Based on mean.
 	"""
 	atom_number = D.shape[0]
-	D = np.mat(D)
-	# axis = 0 or 1 ?
-	atoms_mean_list = D.sum(axis=0) / atom_number
-	#atoms_mean_list = np.mean(D, 0)
-	print(atoms_mean_list)
+	# axis = 0 -> add up rows
+	atoms_mean_list = np.mean(D, 0)
 	plt.figure(figsize=(7, 5))
-	x_axis = np.arange(1, 51)
-	plt.plot(x_axis, atoms_mean_list)
+	x_axis = np.linspace(1, 50, 50) 
+	plt.scatter(x_axis, atoms_mean_list)
 	plt.show()
 
-atom_clustering_1(D)
+def atom_clustering_2(D):
+	"""
+	"""
+	atom_number = D.shape[0]
+	atoms_mean_list = np.mean(D, 0)
+	D = abs(D - atoms_mean_list).sum(axis=0)
+	plt.figure(figsize=(7, 5))
+	x_axis = np.linspace(1, 50, 50) 
+	#plt.scatter(x_axis, atoms_mean_list, color='r')
+	plt.scatter(x_axis, D+atoms_mean_list, color='b')
+	plt.show()
+
+
+atom_clustering_2(D)
