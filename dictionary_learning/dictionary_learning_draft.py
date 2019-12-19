@@ -160,7 +160,6 @@ np.save('v.npy', v)
 np.save('x.npy', x)
 np.save('dictionary.npy', dictionary) 
 
-
 import matplotlib.pyplot as plt 
 
 def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
@@ -180,16 +179,9 @@ print('Plotting...')
 #eeg_plot(y, v, x)
 
 real_EEG = loadmat('SimuEEG.mat')['n'][0, :eeg_data_length].reshape(eeg_data_length, 1)
-print(max(abs(real_EEG-v)))
-print(min(abs(real_EEG-v)))
-print(abs(real_EEG-v).mean())
-print(dictionary.shape)
-
-
-print('s.shape =', s.shape)
-
+#print(max(abs(real_EEG-v)))
+#print(min(abs(real_EEG-v)))
+#print(abs(real_EEG-v).mean())
 
 eeg_plot(real_EEG, v, x)
 #eeg_plot(y, v, x)
-
-
