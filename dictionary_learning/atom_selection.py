@@ -114,5 +114,4 @@ def atom_clustering_2(D):
 	plt.scatter(x_axis, D+atoms_mean_list, color='b')
 	plt.show()
 
-
-atom_clustering_2(D)
+atom_clustering_1(D)
