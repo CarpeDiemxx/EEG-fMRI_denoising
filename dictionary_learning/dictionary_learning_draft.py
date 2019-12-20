@@ -10,14 +10,14 @@ import pandas as pd
 from scipy.io import loadmat
 
 # global variables
-eeg_data_length = 1200
-segment_length = 50
-segment_number = 100 
+eeg_data_length = 4800
+segment_length = 100
+segment_number = 200 
 
 # load EEG data
 # train_data.mat -> x -> (1, 1200)
 # eeg_data.mat -> EEG_data -> (32, 332416)
-data_set = 3
+data_set = 2
 print('Loading data...')
 if data_set == 1:
 	train_data_mat = loadmat('train_data.mat')
@@ -27,7 +27,7 @@ if data_set == 1:
 elif data_set == 2:
 	train_data_mat = loadmat('eeg_data.mat')
 	train_data = train_data_mat['EEG_data'].sum(axis=0).reshape(1, 332416)
-	train_data = train_data[0, 20000:20000+eeg_data_length]
+	train_data = train_data[0, 2000:2000+eeg_data_length]
 else:
 	train_data_mat = loadmat('SimuEEG.mat') 
 	train_data = train_data_mat['x'][0, :eeg_data_length]
@@ -53,13 +53,13 @@ def seg_extract(x:'original EEG data', m:'segment number', n:'segment length'):
 		else:
 			for k in range(0, n):
 				R[i][k][j+k] = 1
-		x_seg[:, i] = (R[i].dot(x.T)).reshape(50)
+		x_seg[:, i] = (R[i].dot(x.T)).reshape(segment_length)
 		# move back the index randomly to implement overlapping
 		t = random.randint(n*2/5, n)
 		j = j + n - t
 	return x_seg, R
 
-def dict_initialize(x_seg:'segmented EEG data', n_components:'dimension of dictionary'=50):
+def dict_initialize(x_seg:'segmented EEG data', n_components:'dimension of dictionary'=segment_length):
 	"""
 	Initialize the dictionary by taking the first n_components column vectors of 
 	left sigular matrix of original EEG data as atoms of the initial dictionary.
@@ -73,7 +73,7 @@ def dict_initialize(x_seg:'segmented EEG data', n_components:'dimension of dicti
 
 	return dict_data
 
-def dict_update(x:'data', D:'dictionary', s, n_components):
+def dict_update(x:'data', D:'dictionary', s, n_components=segment_length):
 	"""
 	Apply K-SVD to find s and D.
 	Update the dictionary column by column.
@@ -139,10 +139,11 @@ for i in range(max_iter):
 	if e < tolerance:
 		break
 	# dictionary update stage
-	dict_update(x_seg, dictionary, s, n_components=50)
+	dict_update(x_seg, dictionary, s)
 
 print('Estimating BCG...')
-index_list = range(3, 50, 1)
+# starting_index = {SimuEEG: 3; eeg_data: 1}
+index_list = range(2, segment_length, 1)
 atom_rearrange(dictionary, index_list)
 x = x_estimate(y, dictionary, s, m=segment_number, n=segment_length)
 print('Computing clean EEG...')
@@ -168,8 +169,9 @@ def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
 	"""
 	t = np.linspace(0, 20, eeg_data_length)
 	plt.figure(figsize=(5, 20))
-	plt.ylim(-1.2, 1.5)
-	plt.plot(t, y, color='b', label='Original EEG')
+	#plt.ylim(-1.2, 1.5)
+	plt.ylim(-10000, 12000)
+	plt.plot(t, y, color='b', label='Original Signal')
 	plt.plot(t, v, color='r', label='Cleaned EEG')
 	#plt.plot(t, x, color='g')
 	plt.legend(loc='0')
@@ -178,10 +180,10 @@ def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
 print('Plotting...')
 #eeg_plot(y, v, x)
 
-real_EEG = loadmat('SimuEEG.mat')['n'][0, :eeg_data_length].reshape(eeg_data_length, 1)
+#real_EEG = loadmat('SimuEEG.mat')['n'][0, :eeg_data_length].reshape(eeg_data_length, 1)
 #print(max(abs(real_EEG-v)))
 #print(min(abs(real_EEG-v)))
 #print(abs(real_EEG-v).mean())
 
-eeg_plot(real_EEG, v, x)
-#eeg_plot(y, v, x)
+#eeg_plot(real_EEG, v, x)
+eeg_plot(y, v, x)
