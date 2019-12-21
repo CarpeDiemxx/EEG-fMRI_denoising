@@ -143,7 +143,7 @@ for i in range(max_iter):
 
 print('Estimating BCG...')
 # starting_index = {SimuEEG: 3; eeg_data: 1}
-index_list = range(2, segment_length, 1)
+index_list = range(4, segment_length, 1)
 atom_rearrange(dictionary, index_list)
 x = x_estimate(y, dictionary, s, m=segment_number, n=segment_length)
 print('Computing clean EEG...')
