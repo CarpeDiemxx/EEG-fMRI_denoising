@@ -3,6 +3,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
 
+
+D = np.load('dictionary.npy')
+x = np.load('x.npy')
+
 def correlation_coefficient(x, y):
 	numerator = ((x-x.mean()) * (y-y.mean())).sum()
 	var_x = np.sqrt(((x - x.mean()) ** 2).sum())
@@ -12,8 +16,6 @@ def correlation_coefficient(x, y):
 def corr_coef(x, y):
 	return x.corr(y)
 
-D = np.load('dictionary.npy')
-x = np.load('x.npy')
 def correlation_coefficient_avg(D, x):
 	corr_list = np.zeros((D.shape[1], 1), dtype=float)
 	corr_list_avg = np.zeros((D.shape[1], 1), dtype=float)
@@ -114,4 +116,11 @@ def atom_clustering_2(D):
 	plt.scatter(x_axis, D+atoms_mean_list, color='b')
 	plt.show()
 
-atom_clustering_1(D)
+def dictionary_modification(D):
+	U, S, V = np.linalg.svd(D) 
+	print(S)
+	x = np.linspace(1, S.shape[0], S.shape[0])
+	plt.scatter(x, S) 
+	plt.show()
+
+dictionary_modification(D)
