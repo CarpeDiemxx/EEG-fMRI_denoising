@@ -23,7 +23,7 @@ if data_set == 1:
 	train_data_mat = loadmat('train_data.mat')
 	# print(train_data_mat.keys())
 	train_data = train_data_mat['eeg'].sum(axis=0).reshape(1, 332416)
-	train_data = train_data[0, 10000:10000+eeg_data_length]
+	train_data = train_data[0, 1000:1000+eeg_data_length]
 	# print(train_data, train_data.shape)
 elif data_set == 2:
 	train_data_mat = loadmat('eeg_data.mat')
