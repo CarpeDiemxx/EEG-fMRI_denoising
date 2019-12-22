@@ -10,23 +10,24 @@ import pandas as pd
 from scipy.io import loadmat
 
 # global variables
-eeg_data_length = 4800
+eeg_data_length = 1200
 segment_length = 100
-segment_number = 200 
+segment_number = 100 
 
 # load EEG data
-# train_data.mat -> x -> (1, 1200)
+# train_data.mat -> eeg -> (32, 332416)
 # eeg_data.mat -> EEG_data -> (32, 332416)
-data_set = 2
+data_set = 3
 print('Loading data...')
 if data_set == 1:
 	train_data_mat = loadmat('train_data.mat')
 	# print(train_data_mat.keys())
-	train_data = train_data_mat['x'][0, :eeg_data_length]
+	train_data = train_data_mat['eeg'].sum(axis=0).reshape(1, 332416)
+	train_data = train_data[0, 10000:10000+eeg_data_length]
 	# print(train_data, train_data.shape)
 elif data_set == 2:
 	train_data_mat = loadmat('eeg_data.mat')
-	train_data = train_data_mat['EEG_data'].sum(axis=0).reshape(1, 332416)
+	train_data = train_data_mat['eeg'].sum(axis=0).reshape(1, 332416)
 	train_data = train_data[0, 2000:2000+eeg_data_length]
 else:
 	train_data_mat = loadmat('SimuEEG.mat') 
@@ -55,7 +56,7 @@ def seg_extract(x:'original EEG data', m:'segment number', n:'segment length'):
 				R[i][k][j+k] = 1
 		x_seg[:, i] = (R[i].dot(x.T)).reshape(segment_length)
 		# move back the index randomly to implement overlapping
-		t = random.randint(n*2/5, n)
+		t = random.randint(n*3/5, n)
 		j = j + n - t
 	return x_seg, R
 
@@ -128,7 +129,7 @@ dictionary = dict_initialize(x_seg, segment_number)
 
 dictionary = dict_initialize(x_seg)
 
-max_iter = 5
+max_iter = 10
 tolerance = 0.15
 
 print('Learning dictionary...')
@@ -142,8 +143,8 @@ for i in range(max_iter):
 	dict_update(x_seg, dictionary, s)
 
 print('Estimating BCG...')
-# starting_index = {SimuEEG: 3; eeg_data: 1}
-index_list = range(4, segment_length, 1)
+# starting_index = {train_data: 3, SimuEEG: 3, eeg_data: 3}
+index_list = range(5, segment_length, 1)
 atom_rearrange(dictionary, index_list)
 x = x_estimate(y, dictionary, s, m=segment_number, n=segment_length)
 print('Computing clean EEG...')
@@ -152,14 +153,14 @@ v = y - x
 # save data
 import scipy.io as scio
 
-scio.savemat('y.mat', {'y':y})
-scio.savemat('v.mat', {'v':v})
+scio.savemat('results\\y.mat', {'y':y})
+scio.savemat('results\\v.mat', {'v':v})
 
-np.save('y.npy', y)
-np.save('v.npy', v)
+np.save('results\\y.npy', y)
+np.save('results\\v.npy', v)
 
-np.save('x.npy', x)
-np.save('dictionary.npy', dictionary) 
+np.save('results\\x.npy', x)
+np.save('results\\dictionary.npy', dictionary) 
 
 import matplotlib.pyplot as plt 
 
@@ -170,7 +171,7 @@ def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
 	t = np.linspace(0, 20, eeg_data_length)
 	plt.figure(figsize=(5, 20))
 	#plt.ylim(-1.2, 1.5)
-	plt.ylim(-10000, 12000)
+	#plt.ylim(-10000, 12000)
 	plt.plot(t, y, color='b', label='Original Signal')
 	plt.plot(t, v, color='r', label='Cleaned EEG')
 	#plt.plot(t, x, color='g')
@@ -180,10 +181,10 @@ def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
 print('Plotting...')
 #eeg_plot(y, v, x)
 
-#real_EEG = loadmat('SimuEEG.mat')['n'][0, :eeg_data_length].reshape(eeg_data_length, 1)
+real_EEG = loadmat('SimuEEG.mat')['n'][0, :eeg_data_length].reshape(eeg_data_length, 1)
 #print(max(abs(real_EEG-v)))
 #print(min(abs(real_EEG-v)))
 #print(abs(real_EEG-v).mean())
 
-#eeg_plot(real_EEG, v, x)
-eeg_plot(y, v, x)
+eeg_plot(real_EEG, v, x)
+#eeg_plot(y, v, x)
