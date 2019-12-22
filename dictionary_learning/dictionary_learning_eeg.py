@@ -16,7 +16,7 @@ from sklearn import linear_model
 
 class dictionary_learning_eeg(object):
 	"""docstring for ClassName"""
-	def __init__(self, eeg_data_length=10000, segment_length=50, segment_number=1000):
+	def __init__(self, eeg_data_length, segment_length, segment_number):
 		#super(ClassName, self).__init__()
 		self.eeg_data_length = eeg_data_length 
 		self.segment_length  = segment_length 
@@ -26,17 +26,22 @@ class dictionary_learning_eeg(object):
 		self.v               = None 
 		self.x               = None 
 		
-
-	def seg_extract(x:'original EEG data', m:'segment number', n:'segment length'):
+	def seg_extract(self.y, self.segment_number, self.segment_length):
 		"""
 		Segment the original signal x (x.shape = (eeg_data_length, 1)) into m smaller signal of length n.
 		Note that these m segments can have any percentage **overlap** with each other.
+		
+		Args:
+			self.y: original EEG data
 		
 		Returns:
 			x_seg: segmented eeg data (x_seg.shape = (n, m))
 			R[i]: an nxN binary (0,1) matrix that extracts the i-th segment from x
 		"""
+		x = self.y
 		N = x.size
+		m = self.segment_number
+		n = self.segment_length
 		# j -> the index of the start of the i-th segment
 		j = 0	
 		x_seg = np.zeros((n, m))
@@ -48,16 +53,20 @@ class dictionary_learning_eeg(object):
 			else:
 				for k in range(0, n):
 					R[i][k][j+k] = 1
-			x_seg[:, i] = (R[i].dot(x.T)).reshape(50)
+			x_seg[:, i] = (R[i].dot(x.T)).reshape(m)
 			# move back the index randomly to implement overlapping
-			t = random.randint(n*1/5, n)
+			t = random.randint(n*2/5, n)
 			j = j + n - t
 		return x_seg, R
 
-	def dict_initialize(x_seg:'segmented EEG data', n_components:'dimension of dictionary'=50):
+	def dict_initialize(x_seg, n_components=self.segment_number):
 		"""
 		Initialize the dictionary by taking the first n_components column vectors of 
 		left sigular matrix of original EEG data as atoms of the initial dictionary.
+		
+		Args:
+			x_seg: segmented EEG data
+			n_components: dimension of dictionary
 
 		Returns:
 			dict_data: initialized dictionary (dict_data.shape = (n, n_components))
@@ -128,12 +137,12 @@ class dictionary_learning_eeg(object):
 
 	def save_data(y, v, dictionary):
 
-		scio.savemat('y.mat', {'y':y})
-		scio.savemat('v.mat', {'v':v})
+		scio.savemat('results\\y.mat', {'y':y})
+		scio.savemat('results\\v.mat', {'v':v})
 
-		np.save('y.npy', y)
-		np.save('v.npy', v)
-		np.save('d.npy', dictionary)
+		np.save('results\\y.npy', y)
+		np.save('results\\v.npy', v)
+		np.save('results\\d.npy', dictionary)
 
 
 	def eeg_plot(y:'original signal', v:'clean EEG', x:'BCG'):
