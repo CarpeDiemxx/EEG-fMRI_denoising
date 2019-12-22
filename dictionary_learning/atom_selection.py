@@ -4,8 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 
 
-D = np.load('dictionary.npy')
-x = np.load('x.npy')
+D = np.load('results\\dictionary.npy')
+x = np.load('results\\x.npy')
 
 def correlation_coefficient(x, y):
 	numerator = ((x-x.mean()) * (y-y.mean())).sum()
@@ -99,8 +99,9 @@ def atom_clustering_1(D):
 	atom_number = D.shape[0]
 	# axis = 0 -> add up rows
 	atoms_mean_list = np.mean(D, 0)
+	print(atoms_mean_list)
 	plt.figure(figsize=(7, 5))
-	x_axis = np.linspace(1, 50, 50) 
+	x_axis = np.linspace(1, atom_number, atom_number) 
 	plt.scatter(x_axis, atoms_mean_list)
 	plt.show()
 
@@ -109,11 +110,11 @@ def atom_clustering_2(D):
 	"""
 	atom_number = D.shape[0]
 	atoms_mean_list = np.mean(D, 0)
-	D = abs(D - atoms_mean_list).sum(axis=0)
+	diff_sum_list = abs(D - atoms_mean_list).sum(axis=0)
+	print(diff_sum_list)
 	plt.figure(figsize=(7, 5))
-	x_axis = np.linspace(1, 50, 50) 
-	#plt.scatter(x_axis, atoms_mean_list, color='r')
-	plt.scatter(x_axis, D+atoms_mean_list, color='b')
+	x_axis = np.linspace(1, atom_number, atom_number) 
+	plt.scatter(x_axis, diff_sum_list, color='b')
 	plt.show()
 
 def dictionary_modification(D):
@@ -123,4 +124,6 @@ def dictionary_modification(D):
 	plt.scatter(x, S) 
 	plt.show()
 
-dictionary_modification(D)
+def 
+
+atom_clustering_2(D)
