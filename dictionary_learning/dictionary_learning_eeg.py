@@ -16,19 +16,19 @@ from sklearn import linear_model
 
 class dictionary_learning_eeg(object):
 	"""docstring for ClassName"""
-	def __init__(self, eeg_data_length, segment_length, segment_number):
-		#super(ClassName, self).__init__()
+	def __init__(self, y, eeg_data_length, segment_length, segment_number, n_components):
+		# original data
+		self.y = y
+
+		# variables
 		self.eeg_data_length = eeg_data_length 
 		self.segment_length  = segment_length 
 		self.segment_number  = segment_number 
-		self.dictionary      = None 
-		self.y               = None 
-		self.v               = None 
-		self.x               = None 
+		self.n_components    = n_components
 		
 	def seg_extract(self.y, self.segment_number, self.segment_length):
 		"""
-		Segment the original signal x (x.shape = (eeg_data_length, 1)) into m smaller signal of length n.
+		Segment the original signal y (x.shape = (eeg_data_length, 1)) into m smaller signal of length n.
 		Note that these m segments can have any percentage **overlap** with each other.
 		
 		Args:
@@ -39,7 +39,7 @@ class dictionary_learning_eeg(object):
 			R[i]: an nxN binary (0,1) matrix that extracts the i-th segment from x
 		"""
 		x = self.y
-		N = x.size
+		N = self.y.size
 		m = self.segment_number
 		n = self.segment_length
 		# j -> the index of the start of the i-th segment
@@ -158,23 +158,29 @@ class dictionary_learning_eeg(object):
 		plt.plot(t, x, color='c')
 		plt.show()
 
-if __name__ == '__main__':
-	main()
+if __name__ == "__main__":
+	# global variables
+	eeg_data_length = 1200 
+	segment_length = 50
+	segment_number = 50
+	n_components = 50
 
-# load EEG data
-# train_data.mat -> x -> (1, 1200)
-# eeg_data.mat -> EEG_data -> (32, 332416)
-dataset = 2
-print('Loading data...')
-if dataset == 1:
-	train_data_mat = loadmat('train_data.mat')
-	# print(train_data_mat.keys())
-	train_data = train_data_mat['x'][0, :10000]
-	# print(train_data, train_data.shape)
-else:
-	train_data_mat = loadmat('eeg_data.mat')
-	train_data = train_data_mat['EEG_data'].sum(axis=0).reshape(1, 332416)
-	train_data = train_data[0, 20000:30000]
+	# load EEG data
+	# train_data.mat -> eeg -> (32, 332416)
+	# eeg_data.mat -> EEG_data -> (32, 332416)
+	data_set = 3
+	print('Loading data...')
+	if data_set == 1:
+		train_data_mat = loadmat('train_data.mat')  # FMRIB data
+		train_data = train_data_mat['eeg'].sum(axis=0).reshape(1, 332416)
+		train_data = train_data[0, 1000:1000+eeg_data_length]
+	elif data_set == 2:
+		train_data_mat = loadmat('eeg_data.mat')  # Leixu data
+		train_data = train_data_mat['eeg'].sum(axis=0).reshape(1, 332416)
+		train_data = train_data[0, 2000:2000+eeg_data_length]
+	else:
+		train_data_mat = loadmat('SimuEEG.mat')  # Synthetic data
+		train_data = train_data_mat['x'][0, :eeg_data_length]
 
-test_unit = dictionary_learning_eeg(train_data)
-test_unit.eeg_plot(test_unit.y, test_unit.v, test_unit.x)
+	test_unit = dictionary_learning_eeg(train_data)
+	test_unit.eeg_plot(test_unit.y, test_unit.v, test_unit.x)
